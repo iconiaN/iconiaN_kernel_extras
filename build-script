@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Make changes to the script here
+sourcePATH=/Volumes/Android/A700_kernel # Change this to your own path
+outPATH=~/Desktop
+kernelFolder=android_kernel_acer_a700
+extrasFolder=iconiaN_kernel_extras
+platform=osx #Choose either 'osx' or 'linux'
+OUT_FILE="iconiaN-kernel"
+
+# Do not edit below this line
+BASE=0x10000000
+CMDLINE=""
+
+if [ -e $outPATH/$OUT_FILE.zip ] ; then
+  rm $outPATH/$OUT_FILE.zip
+fi
+
+if [ "$platform" == "osx" ] ; then
+  cp $sourcePATH/$extrasFolder/tools/$platform/elf.h /usr/local/include
+fi
+
+cd $sourcePATH/$kernelFolder
+
+export ARCH=arm
+export CROSS_COMPILE=$sourcePATH/$extrasFolder/tools/$platform/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
+
+make mrproper
+make iconian_picasso_mf_defconfig
+if [ "$platform" == "osx" ] ; then
+  make -j`sysctl -an hw.logicalcpu`
+else
+  make -j16
+fi
+
+mkdir -p $sourcePATH/tmp/kernel
+mkdir -p $sourcePATH/tmp/update-zip/system/lib/modules
+mkdir -p $sourcePATH/tmp/update-zip/META-INF/com/google/android
+
+cp arch/arm/boot/zImage $sourcePATH/tmp/kernel
+find . -name "*.ko" -exec cp {} $sourcePATH/tmp/update-zip/system/lib/modules \;
+
+cd $sourcePATH/tmp/kernel
+echo "Packing boot.img"
+echo "Using base address $BASE"
+$sourcePATH/$extrasFolder/tools/$platform/bootimg/mkbootfs \
+ $sourcePATH/$extrasFolder/resources/ramdisk  | gzip > ramdisk.gz
+$sourcePATH/$extrasFolder/tools/$platform/bootimg/mkbootimg \
+ --cmdline "$CMDLINE" --base $BASE --kernel zImage \
+ --ramdisk ramdisk.gz -o $sourcePATH/tmp/update-zip/boot.img
+
+cd $sourcePATH/tmp/update-zip
+cp $sourcePATH/$extrasFolder/resources/update-zip/* $sourcePATH/tmp/update-zip/META-INF/com/google/android
+
+cp $sourcePATH/$extrasFolder/resources/modules/* $sourcePATH/tmp/update-zip/system/lib/modules
+
+zip -r -X $outPATH/$OUT_FILE .
+
+cd $sourcePATH
+rm -r $sourcePATH/tmp
+
+cd $sourcePATH/$kernelFolder
+make mrproper
+if [ "$platform" == "osx" ] ; then
+  rm /usr/local/include/elf.h
+fi
