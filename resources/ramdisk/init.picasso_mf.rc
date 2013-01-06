@@ -42,6 +42,9 @@ on post-fs-data
     # Insert exFAT filesystem driver
     insmod system/lib/modules/texfat.ko
 
+    # Insert cifs driver
+    insmod system/lib/modules/cifs.ko
+
 on boot
 
 # Create basic usb host device node for USB host manager monitor
