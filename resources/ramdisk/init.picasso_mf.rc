@@ -17,10 +17,6 @@ on early-init
     mkdir /mnt/usb_storage 0700 system system
     mount tmpfs tmpfs /mnt/usb_storage mode=755,gid=1000
 
-    # create directory for mounting usb drives
-    # mkdir /mnt/usbdrive 0666 system system
-    # symlink /mnt/usbdrive /usbdrive
-
 on fs
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
