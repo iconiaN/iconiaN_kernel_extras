@@ -41,7 +41,10 @@ on post-fs-data
     setprop vold.post_fs_data_done 1
 
     # Insert NTFS filesystem driver
-    insmod system/lib/modules/ufsd.ko
+    insmod system/lib/modules/tntfs.ko
+
+    # Insert exFAT filesystem driver
+    insmod system/lib/modules/texfat.ko
 
 on boot
 
