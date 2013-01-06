@@ -109,12 +109,12 @@ on boot
     chown system system /sys/bus/iio/devices/device0/proximity_enable
 
 # Invensense sensor modules
-    insmod /system/lib/modules/mpu3050.ko
-    insmod /system/lib/modules/timerirq.ko
+#    insmod /system/lib/modules/mpu3050.ko
+#    insmod /system/lib/modules/timerirq.ko
 
 # wifi insmod
-    insmod /system/lib/modules/cfg80211.ko
-    insmod /system/lib/modules/bcmdhd.ko
+#    insmod /system/lib/modules/cfg80211.ko
+#    insmod /system/lib/modules/bcmdhd.ko
 
 # Power management settings
     write /sys/module/cpu_tegra3/parameters/no_lp 0
