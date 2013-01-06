@@ -3,23 +3,28 @@ import init.acer.usb.rc
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
-    # for backwards compatibility
+    export SECONDARY_STORAGE /mnt/external_sd:/mnt/usb_storage
     export EXTERNAL_STORAGE /storage/sdcard0
-    export SECONDARY_STORAGE /storage/sdcard1
     mkdir /storage 0550 system sdcard_r
     mkdir /storage/sdcard0 0000 system system
-    mkdir /storage/sdcard1 0000 system system
     symlink /storage/sdcard0 /sdcard
     symlink /storage/sdcard0 /mnt/sdcard
 
+    export SECOND_VOLUME_STORAGE /mnt/external_sd
+    mkdir /mnt/external_sd 0000 system system
+
+    export THIRD_VOLUME_STORAGE /mnt/usb_storage
+    mkdir /mnt/usb_storage 0700 system system
+    mount tmpfs tmpfs /mnt/usb_storage mode=755,gid=1000
+
     # create directory for mounting usb drives
-    mkdir /Removable 0755 media_rw media_rw
+    # mkdir /mnt/usbdrive 0666 system system
+    # symlink /mnt/usbdrive /usbdrive
 
 on fs
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
     mount_all /fstab.${ro.hardware}
-	mount tmpfs tmpfs /Removable mode=0755,gid=1000
 
 on post-fs-data
     mkdir /data/misc/wifi 0770 wifi wifi
@@ -36,13 +41,7 @@ on post-fs-data
     setprop vold.post_fs_data_done 1
 
     # Insert NTFS filesystem driver
-    insmod system/lib/modules/tntfs.ko
-
-    # Insert exFAT filesystem driver
-    insmod system/lib/modules/texfat.ko
-
-    # Insert cifs driver
-    insmod system/lib/modules/cifs.ko
+    insmod system/lib/modules/ufsd.ko
 
 on boot
 
@@ -108,12 +107,12 @@ on boot
     chown system system /sys/bus/iio/devices/device0/proximity_enable
 
 # Invensense sensor modules
-#    insmod /system/lib/modules/mpu3050.ko
-#    insmod /system/lib/modules/timerirq.ko
+    insmod /system/lib/modules/mpu3050.ko
+    insmod /system/lib/modules/timerirq.ko
 
 # wifi insmod
-#    insmod /system/lib/modules/cfg80211.ko
-#    insmod /system/lib/modules/bcmdhd.ko
+    insmod /system/lib/modules/cfg80211.ko
+    insmod /system/lib/modules/bcmdhd.ko
 
 # Power management settings
     write /sys/module/cpu_tegra3/parameters/no_lp 0
@@ -180,16 +179,11 @@ service wpa_supplicant /system/bin/wpa_supplicant \
     oneshot
 
 service dhcpcd_wlan0 /system/bin/dhcpcd -BK
-     class main
-     disabled
-     oneshot
+    class main
+    disabled
+    oneshot
 
 service dhcpcd_eth0 /system/bin/dhcpcd -ABKL -f/system/etc/dhcpcd/dhcpcd.conf
-     class main
-     disabled
-     oneshot
-
-service dhcpcd_usb0 /system/bin/dhcpcd -ABDKL -f/system/etc/dhcpcd/dhcpcd.conf
      class main
      disabled
      oneshot
@@ -208,11 +202,6 @@ service iprenew_eth0 /system/bin/dhcpcd -n
     class main
     disabled
     oneshot
-
-service iprenew_usb0 /system/bin/dhcpcd -n
-	class main
-	disabled
-	oneshot
 
 service iprenew_p2p /system/bin/dhcpcd -n
     class main

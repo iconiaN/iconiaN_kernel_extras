@@ -1,12 +1,9 @@
 #
 # ADDITIONAL_DEFAULT_PROPERTIES
 #
-ro.secure=0
+ro.secure=1
 ro.allow.mock.location=0
 ro.debuggable=0
 dx.playready.enabled=true
 dx.drm.server.state=idle
 persist.sys.usb.config=mtp
-# Enable USB debugging
-persist.service.adb.enable=1
-
