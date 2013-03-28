@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Make changes to the script here
-sourcePATH=/Volumes/Android/A700_kernel # Change this to your own path
+sourcePATH=/home/vorbeth/iconian # Change this to your own path
 outPATH=~/Desktop
 kernelFolder=android_kernel_acer_a700
 extrasFolder=iconiaN_kernel_extras
-platform=osx #Choose either 'osx' or 'linux'
+platform=linux #Choose either 'osx' or 'linux'
 OUT_FILE="iconiaN-kernel"
 
 # Do not edit below this line
